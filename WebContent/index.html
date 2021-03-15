@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome To HomePage</title>
+    <link href="css/bootstrap.min.css" type="text/css" rel="stylesheet">
+    <link href="font/css/all.css" type="text/css" rel ="stylesheet">
+    <link rel="stylesheet" href="css/mycss.css" type="text/css">
+    <script src="js/lib/jquery.js"></script>
+    <script src="js/dist/jquery.validate.js"></script>
+    <script src="js/lib/bootstrap.js"></script>
+    <script src="js/dist/additional-methods.js"></script>
+
+
+
+    <script>
+
+      $().ready(function() {
+        // validate the comment form when it is submitted
+
+        $.validator.setDefaults({
+          errorClass: 'invalid-feedback',
+          highlight: function(element){
+            $(element).removeClass('is-valid');
+            $(element).addClass('is-invalid');
+          },
+          unhighlight: function(element){
+            $(element).removeClass('is-invalid');
+            $(element).addClass('is-valid');
+          }
+        })
+
+
+        var signupValidator = $("#Signup").validate(
+                {
+                  rules: {
+
+                    lname: {
+                      required: true,
+                      maxlength: 30,
+                      nowhitespace: true,
+                      lettersonly: true
+                    },
+                    fname: {
+
+                      required: true,
+                      maxlength: 30,
+                      nowhitespace: true,
+                      lettersonly: true
+                    },
+                    confirm: {
+                      required: true,
+                      equalTo: "#pass",
+                      minlength: 8,
+                      maxlength: 30
+                    },
+                    pass: {
+                      required:true,
+                      minlength: 8,
+                      maxlength: 30
+                    },
+                    email: {
+                      maxlength: 40,
+                      email: true,
+                      remote : "UserValidation"
+                    },
+                    rollno:{
+                      remote : "Rollno"
+                    }
+
+
+                  }
+                });
+
+
+
+
+        $(".close").click(function (e) {
+          signupValidator.resetForm();
+          $('.alert').removeClass('alert-danger');
+          $('.alert').removeClass('alert-success');
+          $('.form-control').removeClass('is-valid');
+          $('.form-control').removeClass('is-invalid');
+
+
+
+          $('.alert').html("");
+
+
+        })
+
+
+
+
+        $(".Teacher_button").click(function(e){
+        $(".user_type").val("teacher");
+        $("#rollno").removeAttr('required');
+        $("#rollno").hide();
+      });
+
+      $(".Student_button").click(function(e){
+        $(".user_type").val("student");
+        $("#rollno").show();
+        $("#rollno").attr("required","required")
+      });
+
+
+
+
+        $("#Signup").submit(function (e) {
+          e.preventDefault();
+          if(!$(this).valid())
+          {
+            return;
+          }
+
+
+
+          var form = $(this);
+          var url = form.attr('action');
+          $.ajax({
+            type: "POST",
+            url: url,
+            data: form.serialize(), // serializes the form's elements.
+            success: function (data) {
+              console.log(data);
+
+
+              if (data.status == true) {
+                $('.alert').addClass('alert-danger');
+                $('.alert').html(data.message);
+              } else {
+
+                $('.alert').addClass('alert-success');
+                $('.alert').removeClass('alert-danger');
+                $('.alert').html('Account Created Successfully Now You Can Log In');
+              }
+            },
+            error : function(data)
+            {
+              console.log(data);
+              $('.alert').addClass('alert-danger');
+              $('.alert').removeClass('alert-success')
+              $('.alert').html("Couldn't Communicate With Server ! ");
+            }
+          });
+        });
+
+
+        $("#Login").submit(function (e) {
+          e.preventDefault();
+          $.validator.setDefaults({
+            errorClass: 'invalid-feedback',
+            highlight: function(element){
+              $(element).removeClass('is-valid');
+              $(element).addClass('is-invalid');
+            },
+            unhighlight: function(element){
+              $(element).removeClass('is-invalid');
+            }
+          })
+          if(!$(this).valid())
+          {
+            return;
+          }
+
+          var form = $(this);
+          var url = form.attr('action');
+          $.ajax({
+            type: "POST",
+            url: url,
+            data: form.serialize(), // serializes the form's elements.
+            success: function (data) {
+
+
+              if (data.status == true) {
+                $('.alert').addClass('alert-danger');
+                $('.alert').html('Invalid Credentials.<br> Please Sign Up');
+                console.log(data);
+              } else {
+                console.log($(".user_type").val())
+
+                if($(".user_type").val()=='teacher')
+                  window.location.href = "TeacherHome.jsp";
+                else if($(".user_type").val()=='student')
+                  window.location.href = "StudentHome.jsp";
+              }
+            },
+            error : function(data)
+            {
+              $('.alert').addClass('alert-danger');
+              $('.alert').html("Couldn't Communicate With Server !");
+              console.log(data); // show response from the php script.
+            }
+          });
+        });
+      });
+    </script>
+
+
+</head>
+
+<body class="home-page">
+
+  
+  
+  <nav class="navbar navbar-dark bg-dark">
+    <a class="navbar-brand" href="#"><i class="fas fa-terminal"></i> Code</a>
+    
+  </nav>
+  
+
+  <div class="container">
+    
+    
+    <h1 class="text-center text-light"><i class="fas fa-sign-in-alt"></i> Login/SignUp </h1>
+    <br>
+    
+    <div class="row">
+      <div class="col-sm">
+        <div class="shadow-sm p-3 mb-5 bg-white rounded">
+          <div class="card">
+            <div class="card-body special-card">
+              <h4 class="card-title"><i class="fas fa-user-tie"></i>  For Teachers</h4>
+                <p class="card-text">A place where you can create assignments for your student and view assignments that are submitted by your students</p>
+                <a href="#Login_modal" data-toggle="modal" class="btn btn-success Teacher_button">Login</a>
+                <br><br>
+                <p class="text-center">
+                  Don't have an account?  <a class="Teacher_button text-primary" href="#Signup_modal" data-toggle="modal" > Request for an account</a>
+                </p>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm">
+          <div class="shadow-sm p-3 mb-5 bg-white rounded">
+            <div class="card special-card">
+              <div class="card-body">
+                <h4 class="card-title"><i class="fas fa-user-graduate"></i> For Students</h4>
+                  <p class="card-text">A place where you can view you assignments and submit them</p>
+                  <a href="#Login_modal" data-toggle="modal" class="btn btn-success Student_button">Login</a>
+                  <br><br>
+                  <p class="text-center">
+                    Don't have an account?  <a class="Student_button" href="#Signup_modal" data-toggle="modal"> Sign Up</a>
+                  </p>
+                </div>
+                
+              </div>
+              
+            </div>
+          </div>
+        </div>
+
+        
+        
+      </div >
+      <div class="area" >
+        <ul class="circles">
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+      </div > 
+      
+      
+      
+
+
+<!-- Modal -->
+<div class="modal fade" id="Login_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center" id="exampleModalCenterTitle">Login</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+
+
+        <form id="Login" action="Login" method="post">
+
+          <div class="form-group">
+            <input type="email" name="email" class="form-control" placeholder="yourEmail@example.com" required="required">
+          </div>
+          <div class="form-group">
+            <input type="password" name="pass" class="form-control" placeholder="Password" required="required">
+          </div>
+
+          <input type="hidden" class="user_type" name="user_type" value="">
+
+            <div class="col-3 form-group">
+              <input type="submit" class="btn btn-primary btn-block btn-md" value="Log in">
+            </div>
+
+          <div class="alert" role="alert">
+
+          </div>
+        </form>
+      </div>
+
+
+          </div>
+      </div>
+  </div>
+</div>
+
+  <div class="modal fade" id="Signup_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-center">Sign Up</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+
+
+            <form id="Signup" action="SignUp" method="POST">
+              <div class="form-group">
+                <input type="text" name="fname" class="form-control" placeholder="First Name">
+              </div>
+              <div class="form-group">
+                <input type="text"  name="lname" class="form-control" placeholder="Last Name" >
+              </div>
+
+              <div class="form-group">
+                <input id = "rollno" visible="true" type="number" name="rollno" class="form-control" placeholder="Your Roll no">
+              </div>
+
+              <div class="form-group">
+                <input type="email" name="email" class="form-control" placeholder="yourEmail@example.com" required>
+
+              </div>
+              <div class="form-group">
+                <input id="pass" type="password"  name="pass" class="form-control" placeholder="Password" >
+              </div>
+              <div class="form-group">
+                <input id="confirm"  type="password" name="confirm"  class="form-control" placeholder="Confirm Password">
+              </div>
+
+
+
+              <input type="hidden" class="user_type" name="user_type" value="">
+
+                <div class="form-group col-3">
+                  <input type="submit" class="btn btn-primary btn-block btn-md" value="Sign Up">
+
+              </div>
+
+
+              <div class="alert" role="alert">
+
+              </div>
+            </form>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+    </body>
+    </html>
+
+
